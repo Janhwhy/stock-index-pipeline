@@ -1,34 +1,44 @@
-print("SILVER PIPELINE STARTED")
-
 import sys
 import os
 import pandas as pd
 
 sys.path.append(os.path.abspath("."))
 
+from tasks.utils.config_loader import load_config
 from tasks.transformation.clean_data import clean_data, calculate_returns
+from tasks.monitoring.data_quality import validate_data
+
 
 def run_silver():
-    print("▶ Running Silver Pipeline")
+    print("Running Silver Pipeline")
 
-    # Step 1: Load bronze data
-    df = pd.read_csv("data/bronze/stock_data.csv")
+    # load config
+    config = load_config()
 
+    bronze_path = config["paths"]["bronze"]
+    silver_path = config["paths"]["silver"]
+
+    # load data
+    df = pd.read_csv(bronze_path)
     print("Loaded bronze data")
 
-    # Step 2: Clean
+    # validation
+    validate_data(df)
+
+    # cleaning
     df = clean_data(df)
 
-    # Step 3: Calculate returns
+    # feature engineering
     df = calculate_returns(df)
 
-    # Step 4: Save
-    os.makedirs("data/silver", exist_ok=True)
+    # ensure directory exists
+    os.makedirs(os.path.dirname(silver_path), exist_ok=True)
 
-    file_path = "data/silver/stock_data_cleaned.csv"
-    df.to_csv(file_path, index=False)
+    # save
+    df.to_csv(silver_path, index=False)
 
-    print(f"Saved to {file_path}")
+    print(f"Saved to {silver_path}")
+
 
 if __name__ == "__main__":
     run_silver()

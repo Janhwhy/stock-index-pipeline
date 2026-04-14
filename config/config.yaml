@@ -1,0 +1,9 @@
+symbols:
+  - AAPL
+  - TSLA
+  - MSFT
+
+paths:
+  bronze: data/bronze/stock_data.csv
+  silver: data/silver/stock_data_cleaned.csv
+  gold: data/gold/stock_rankings.csv

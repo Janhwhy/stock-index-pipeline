@@ -1,34 +1,40 @@
-print("GOLD PIPELINE STARTED")
-
 import sys
 import os
 import pandas as pd
 
 sys.path.append(os.path.abspath("."))
 
+from tasks.utils.config_loader import load_config
 from tasks.analytics.compute_metrics import compute_metrics, rank_stocks
 
+
 def run_gold():
-    print("▶ Running Gold Pipeline")
+    print("Running Gold Pipeline")
 
-    # Step 1: Load silver data
-    df = pd.read_csv("data/silver/stock_data_cleaned.csv")
+    # load config
+    config = load_config()
 
+    silver_path = config["paths"]["silver"]
+    gold_path = config["paths"]["gold"]
+
+    # load data
+    df = pd.read_csv(silver_path)
     print("Loaded silver data")
 
-    # Step 2: Compute metrics
+    # compute metrics
     metrics = compute_metrics(df)
 
-    # Step 3: Rank stocks
+    # rank stocks
     ranked = rank_stocks(metrics)
 
-    # Step 4: Save
-    os.makedirs("data/gold", exist_ok=True)
+    # ensure directory exists
+    os.makedirs(os.path.dirname(gold_path), exist_ok=True)
 
-    file_path = "data/gold/stock_rankings.csv"
-    ranked.to_csv(file_path, index=False)
+    # save
+    ranked.to_csv(gold_path, index=False)
 
-    print(f"Saved to {file_path}")
+    print(f"Saved to {gold_path}")
+
 
 if __name__ == "__main__":
     run_gold()

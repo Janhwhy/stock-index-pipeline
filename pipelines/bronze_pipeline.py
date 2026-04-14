@@ -1,27 +1,28 @@
-print("🚀 FILE STARTED")
-
 import sys
 import os
 
 sys.path.append(os.path.abspath("."))
 
+from tasks.utils.config_loader import load_config
 from tasks.ingestion.fetch_yfinance import fetch_data
 
 def run_bronze():
-    print("▶ Running Bronze Pipeline")
+    print("Running Bronze Pipeline")
 
-    # ✅multiple stocks now works
-    df = fetch_data(["AAPL", "TSLA", "MSFT"])
+    config = load_config()
 
-    print(" Data received")
+    symbols = config["symbols"]
+    file_path = config["paths"]["bronze"]
 
-    os.makedirs("data/bronze", exist_ok=True)
+    df = fetch_data(symbols)
 
-    file_path = "data/bronze/stock_data.csv"
+    # ensure directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
     df.to_csv(file_path, index=False)
 
-    print(f"💾 Saved to {file_path}")
+    print(f"Saved to {file_path}")
+
 
 if __name__ == "__main__":
-    print("MAIN BLOCK RUNNING")
     run_bronze()
